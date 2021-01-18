@@ -1,17 +1,11 @@
-from abc import ABC, abstractmethod
-import sys
-import hashlib
-import random
 import base64
-from crypto.Cipher import *
-from crypto.PublicKey import *
-from crypto.Random import random as rd
+from abc import ABC
+
 from crypto import *
 from crypto import Random
+from crypto.PublicKey import *
+from crypto.Random import random as rd
 from crypto.Util.number import GCD
-from time import time
-from string import printable
-from itertools import product, count
 
 
 class Asym_Encryption(ABC):
@@ -31,10 +25,10 @@ class Asym_Encryption(ABC):
 
 class ElGamalEncryption(Asym_Encryption):
 
-    def __init__(self, tup):
+    def __init__(self, tup: tuple):
         self.__key = ElGamal.construct(tup)
 
-    def __init__(self, size=1024, rand_func = Random.new().read):
+    def __init__(self, size: int = 1024, rand_func=Random.new().read):
         self.__key = ElGamal.generate(size, rand_func)
 
     def __generate_k(self):
@@ -68,10 +62,10 @@ class ElGamalEncryption(Asym_Encryption):
 
 
 class RSAEncryption():
-    def __init__(self, tup):
+    def __init__(self, tup: tuple):
         self.__key = RSA.construct(tup)
 
-    def __init__(self, file_path, passphrase=None):
+    def __init__(self, file_path: str, passphrase: str=None):
         self.__key = self.__import_rsa_key(file_path, passphrase=passphrase)
         self.__passphrase = passphrase
 
@@ -113,4 +107,3 @@ class RSAEncryption():
             f = open(output_file, 'w')
             f.write(rsa_key.exportKey(format='PEM', passphrase=passphrase).decode())
         return rsa_key
-
