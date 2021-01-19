@@ -21,12 +21,19 @@ class AsymmetricEncryption(ABC):
     def verify(self, message, signature):
         pass
 
+    def is_private(self):
+        pass
+
 
 class ElGamalEncryption(AsymmetricEncryption):
-    """def __init__(self, tup: tuple):
-        self.__key = ElGamal.construct(tup)"""
 
-    def __init__(self, size: int = 1024, rand_func=Random.new().read):
+    def __init__(self):
+        self.__key = None
+
+    def construct_key(self, tup: tuple):
+        self.__key = ElGamal.construct(tup)
+
+    def generate_key(self, size: int = 1024, rand_func=Random.new().read):
         self.__key = ElGamal.generate(size, rand_func)
 
     def __generate_k(self):
@@ -38,12 +45,13 @@ class ElGamalEncryption(AsymmetricEncryption):
     def encrypt(self, plain_text):
         k = self.__generate_k()
         cipher_text = self.__key.encrypt(plain_text.encode('utf-8'), k)
-        return tuple(base64.b64encode(c) for c in cipher_text)
+        # return tuple(base64.b64encode(c).decode('utf-8') for c in cipher_text)
+        return cipher_text
 
     def decrypt(self, cipher_text):
-        cipher_text = tuple(base64.b64decode(c) for c in cipher_text)
+        # cipher_text = tuple(base64.b64decode(c) for c in cipher_text)
         plain_text = self.__key.decrypt(cipher_text)
-        return plain_text.decode('utf-8')
+        return plain_text
 
     def sign(self, message):
         h = Hash.SHA.new(message.encode('utf-8')).digest()
@@ -58,38 +66,50 @@ class ElGamalEncryption(AsymmetricEncryption):
         h = Hash.SHA.new(message.encode('utf-8')).digest()
         return bool(self.__key.verify(h, signature))
 
+    def key_data(self):
+        out = "\n".join(["{} = {}".format(comp, getattr(self.__key, comp)) for comp in self.__key.keydata])
+        print(out)
+
+    def is_private(self):
+        return self.__key.has_private()
+
 
 def import_rsa_key(file_path, passphrase=None):
     try:
         f = open(file_path, 'r')
         rsa_byte = f.read()
         rsa_key = RSA.importKey(rsa_byte, passphrase=passphrase)
+        f.close()
+        return rsa_key
     except Exception:
         raise Exception(
             'The specified file [' + file_path + '] does not exist or does not contain a valid RSA Key in bytes format')
-    return rsa_key
-
-
-def generate_rsa_key(size=1024, output_file=None, passphrase=None):
-    rsa_key = RSA.generate(int(size))
-    if output_file is not None:
-        f = open(output_file, 'w')
-        f.write(rsa_key.exportKey(format='PEM', passphrase=passphrase).decode())
-    return rsa_key
 
 
 class RSAEncryption:
-    def __init__(self, tup: tuple):
-        self.__passphrase = None
-        self.__key = RSA.construct(tup)
+    def __init__(self):
+        self.__passphrase: str = ''
+        self.__key: RSA = None
 
-    def __init__(self, file_path: str, passphrase: str = None):
+    def import_key(self, file_path: str, passphrase: str = None):
         self.__key = import_rsa_key(file_path, passphrase=passphrase)
         self.__passphrase = passphrase
 
-    def __init__(self, size=1024, output_file=None, passphrase=None):
-        self.__key = generate_rsa_key(size, output_file, passphrase)
+    def generate_key(self, size=1024, passphrase=None):
+        self.__key = RSA.generate(int(size))
         self.__passphrase = passphrase
+
+    def export_private_key(self, output_file=None, passphrase=None):
+        if output_file is not None:
+            f = open(output_file, 'w')
+            f.write(self.__key.exportKey(format='PEM', passphrase=passphrase).decode())
+            f.close()
+
+    def export_public_key(self, output_file=None, passphrase=None):
+        if output_file is not None:
+            f = open(output_file, 'w')
+            f.write(self.__key.publickey().exportKey(format='PEM', passphrase=passphrase).decode())
+            f.close()
 
     def encrypt(self, plain_text):
         plain_text = plain_text.encode('utf-8')
@@ -99,7 +119,7 @@ class RSAEncryption:
     def decrypt(self, cipher_text):
         cipher_text = base64.b64decode(cipher_text.encode('utf-8'))
         plain_text = self.__key.decrypt(cipher_text)
-        return plain_text
+        return plain_text.decode('utf-8')
 
     def sign(self, message):
         h = Hash.SHA.new(message.encode('utf-8')).digest()
@@ -108,3 +128,6 @@ class RSAEncryption:
     def verify(self, message, signature):
         h = Hash.SHA.new(message.encode('utf-8')).digest()
         return self.__key.verify(h, signature)
+
+    def is_private(self):
+        return self.__key.has_private()

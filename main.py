@@ -197,7 +197,204 @@ def symmetric_encrypt():
     input("Tapez sur ENTR pour continuer...")
 
 
+def asymmetric_encrypt():
+    print_title()
+    print("---------------------------------------------------")
+    print("1. Générer une clef")
+    print("2. Importer une clef")
+    while True:
+        try:
+            choice = int(input("[*] Votre choix: "))
+        except ValueError:
+            print("[*] Veuillez saisir un chiffre entre 1 et 2")
+        else:
+            if 2 >= choice >= 1:
+                break
+            else:
+                print("[*] Veuillez saisir un chiffre entre 1 et 2")
+    clear()
+    print_title()
+    print("---------------------------------------------------")
+    print("1. ElGamal")
+    print("2. RSA")
+    while True:
+        try:
+            algorithm = int(input("[*] Veuillez choisir un algorithme: "))
+        except ValueError:
+            print("[*] Veuillez saisir un chiffre entre 1 et 2")
+        else:
+            if 2 >= algorithm >= 1:
+                break
+            else:
+                print("[*] Veuillez saisir un chiffre entre 1 et 2")
+    clear()
+    print_title()
+    print("---------------------------------------------------")
+    if algorithm == 1:
+        key = get_el_gamal_key(choice)
+    else:
+        key = get_rsa_key(choice)
+    choice = 0
+    while choice != 4:
+        clear()
+        print_title()
+        print("---------------------------------------------------")
+        print("1. Chiffrer un message")
+        print("2. Déchiffrer un message")
+        print("3. Exporter votre clef")
+        print("4. Retour au menu principal")
+        while True:
+            try:
+                choice = int(input("[*] Votre choix: "))
+            except ValueError:
+                print("[*] Veuillez saisir un chiffre entre 1 et 3")
+            else:
+                if 4 >= choice >= 1:
+                    break
+                else:
+                    print("[*] Veuillez saisir un chiffre entre 1 et 3")
+        clear()
+        print_title()
+        if choice == 1:
+            print("---------------------------------------------------")
+            print("[*] Veuillez saisir votre message:")
+            message = input()
+            print("---------------------------------------------------")
+            print("[+] Message chiffré:")
+            print(key.encrypt(message))
+        if choice == 2:
+            if key.is_private():
+                decrypt(key, algorithm)
+            else:
+                print("Votre clef ne possède pas une composante privée. Impossible d'éffectuer un déchiffrement")
+        print("---------------------------------------------------")
+        input("Tapez sur ENTR pour continuer...")
+
+
+def decrypt(key, algorithm):
+    if algorithm == 1:
+        print("---------------------------------------------------")
+        print("[*] Veuillez saisir le premier morceau:")
+        u = input()
+        print("[*] Veuillez saisir le deuxième morceau:")
+        v = input()
+        print("---------------------------------------------------")
+        print("Tentative de déchiffrement...")
+        message = key.decrypt([u, v])
+        print("[+] Message déchiffré:")
+        print(message)
+    elif algorithm == 2:
+        print("---------------------------------------------------")
+        print("[*] Veuillez saisir le message à déchiffrer:")
+        text = input()
+        print("---------------------------------------------------")
+        print("Tentative de déchiffrement...")
+        try:
+            message = key.decrypt(text)
+            print("[+] Message déchiffré:")
+            print(message)
+        except Exception:
+            print("[*] La tentative de déchiffrement a échoué.")
+
+def get_el_gamal_key(choice):
+    key = ElGamalEncryption()
+    if choice == 1:
+        while True:
+            try:
+                size = int(input("[*] Veuillez saisir la taille de votre clef: "))
+            except ValueError:
+                print("[*] Veuillez saisir un nombre valide")
+            else:
+                break
+        key.generate_key(size)
+    if choice == 2:
+        while True:
+            try:
+                p = int(input("[*] Veuillez saisir le module p: "))
+            except ValueError:
+                print("[*] Veuillez saisir un nombre valide")
+            else:
+                break
+        print("---------------------------------------------------")
+        while True:
+            try:
+                g = int(input("[*] Veuillez saisir le générateur g: "))
+            except ValueError:
+                print("[*] Veuillez saisir un nombre valide")
+            else:
+                break
+        print("---------------------------------------------------")
+        while True:
+            try:
+                y = int(input("[*] Veuillez saisir votre clef publique y: "))
+            except ValueError:
+                print("[*] Veuillez saisir un nombre valide")
+            else:
+                break
+        print("---------------------------------------------------")
+        while True:
+            try:
+                x = int(input("[*] Veuillez saisir votre clef privée x (Laissez ce champ vide s'il sagit d'une clef "
+                              "publique): "))
+            except ValueError:
+                print("[*] Veuillez saisir un nombre valide")
+            else:
+                break
+        if x:
+            tup = (p, g, y, x)
+        else:
+            tup = (p, g, y)
+        key.construct_key(tup)
+    return key
+
+
+def get_rsa_key(choice):
+    key = RSAEncryption()
+    if choice == 1:
+        while True:
+            try:
+                size = int(input("[*] Veuillez saisir la taille de votre clef: "))
+            except ValueError:
+                print("[*] Veuillez saisir un nombre valide")
+            else:
+                break
+        while True:
+            print("[*] Veuillez saisir un mot de passe:")
+            password = getpass()
+            print("[*] Veuillez confirmer le mot de passe:")
+            confirm_pwd = getpass()
+            if password == confirm_pwd:
+                break
+            else:
+                print("[*] Les mots de passe ne sont pas identiques. Veuillez réessayer...")
+        key.generate_key(size, password)
+    elif choice == 2:
+        while True:
+            while True:
+                try:
+                    path = input("[*] Veuillez saisir le chemin de votre clef: ")
+                    open(path, 'r').close()
+                except FileNotFoundError:
+                    print("[*] Fichier introuvable. Veuillez réessayer...")
+                else:
+                    break
+            print("[*] Veuillez saisir le mot de passe:")
+            password = getpass()
+            try:
+                key.import_key(path, password)
+            except Exception:
+                print("[*] Le fichier spécifié n'existe pas ou ne contient pas de clé RSA valide au format octets. "
+                      "Veuillez réessayer...")
+            else:
+                break
+    return key
+
+
 if __name__ == '__main__':
+    gamal = ElGamalEncryption()
+    gamal.generate_key(23)
+    print(gamal.decrypt(gamal.encrypt('test')))
+    """
     try:
         while True:
             clear()
@@ -219,4 +416,4 @@ if __name__ == '__main__':
                 exit()
     except KeyboardInterrupt:
         clear()
-        print("Au revoir :)")
+        print("Au revoir :)")"""
