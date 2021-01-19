@@ -1,10 +1,10 @@
 # Outil SSI INSAT pour la cryptographie
 
-Outil SSI INSAT est un kit contenant divers outils de cryptographie. Il est programmeé en Python 3.7.
+Outil SSI INSAT est un kit contenant divers outils de cryptographie programmeé en Python 3.7.
 
-## Comment l'utiliser
+## Guide d'utilisation
 
-Cet outil nécessite que vous ayez déjà installé Python 3.7.
+Vous devez installer Python 3.7 pour pouvoir exécuter cet outil.
 
 Dans un premier temps, clonez ce repo avec:
 ```sh
