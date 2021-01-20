@@ -49,9 +49,16 @@ def encode_decode():
     print("1. Coder un message")
     print("2. Décoder un message")
     print("---------------------------------------------------")
-    choice = int(input("[*] Votre choix: "))
-    while choice > 2 or choice < 1:
-        choice = int(input("[*] Veuillez saisir un choix valide: "))
+    while True:
+        try:
+            choice = int(input("[*] Votre choix: "))
+        except ValueError:
+            print("[*] Veuillez saisir un choix valide: ")
+        else:
+            if 2 >= choice >= 1:
+                break
+            else:
+                print("[*] Veuillez saisir un choix valide: ")
     clear()
     if choice == 1:
         print_title()
@@ -113,9 +120,17 @@ def crack_hash():
     print("---------------------------------------------------")
     print("1. Attaque par dictionnaire")
     print("2. Attaque par force brute")
-    choice = int(input("[*] Veuillez choisir le type d'attaque: "))
-    while choice > 2 or choice < 1:
-        choice = int(input("[*] Veuillez saisir un choix valide: "))
+    print("---------------------------------------------------")
+    while True:
+        try:
+            choice = int(input("[*] Veuillez choisir le type d'attaque: "))
+        except ValueError:
+            print("[*] Veuillez saisir un choix valide: ")
+        else:
+            if 2 >= choice >= 1:
+                break
+            else:
+                print("[*] Veuillez saisir un choix valide: ")
     if choice == 1:
         while True:
             try:
@@ -142,18 +157,32 @@ def symmetric_encrypt():
     print("1. Chiffrement")
     print("2. Déchiffrement")
     print("---------------------------------------------------")
-    choice = int(input("[*] Votre choix: "))
-    while choice > 2 or choice < 1:
-        choice = int(input("[*] Veuillez saisir un choix valide: "))
+    while True:
+        try:
+            choice = int(input("[*] Votre choix: "))
+        except ValueError:
+            print("[*] Veuillez saisir un choix valide: ")
+        else:
+            if 2 >= choice >= 1:
+                break
+            else:
+                print("[*] Veuillez saisir un choix valide: ")
     clear()
     print_title()
     print("---------------------------------------------------")
     print("1. DES")
     print("2. AES")
     print("---------------------------------------------------")
-    algorithm = int(input("[*] Votre choix: "))
-    while algorithm > 2 or algorithm < 1:
-        algorithm = int(input("[*] Veuillez saisir un choix valide: "))
+    while True:
+        try:
+            algorithm = int(input("[*] Votre choix: "))
+        except ValueError:
+            print("[*] Veuillez saisir un choix valide: ")
+        else:
+            if 2 >= algorithm >= 1:
+                break
+            else:
+                print("[*] Veuillez saisir un choix valide: ")
     print("---------------------------------------------------")
     if choice == 1:
         while True:
